@@ -1,0 +1,28 @@
+CAPI=2:
+
+name: Illusion:RISC16:CPU:1.0
+description: Simple 16-bit RISC CPU
+
+filesets:
+  rtl:
+    files:
+      - src/RISC16.sv : {file_type : systemVerilogSource}
+
+  test:
+    depend:
+      - "=Illusion:Tests:Tests:1.0"
+    files:
+      - test/main.cpp : {file_type : cppSource}
+
+targets:
+  default:
+    filesets: [rtl]
+  test:
+    filesets: [test, rtl]
+    default_tool: verilator
+    toplevel: [RISC16]
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+          - "--trace"
