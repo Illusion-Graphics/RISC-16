@@ -1,6 +1,11 @@
 <p align="center">
 <img src="https://avatars2.githubusercontent.com/u/59974375?s=200&v=4">
 </p>
+<p align="center">
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/Illusion-Graphics/RISC-16/CI?style=flat-square">
+<img alt="GitHub Release" src="https://img.shields.io/github/v/release/Illusion-Graphics/RISC-16?style=flat-square">
+<img alt="License" src="https://img.shields.io/github/license/Illusion-Graphics/RISC-16?style=flat-square">
+</p>
 
 # RISC-16
 ## What is RISC-16 core?
