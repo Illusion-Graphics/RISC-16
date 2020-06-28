@@ -1,0 +1,58 @@
+#cpudef
+{
+	#tokendef reg
+	{
+		r0 = 0
+		r1 = 1
+		r2 = 2
+		r3 = 3
+		r4 = 4
+		r5 = 5
+		r6 = 6
+		r7 = 7
+	}
+
+    #bits 16
+    
+    nop -> 0x0000
+	hlt -> 0x0001
+	
+	mov {dest: reg}, {src: reg} -> 0b01 @ 0b00000 @ dest[2:0] @ src[2:0] @ 0b000
+	add {dest: reg}, {o1: reg}, {o2: reg} -> 0b01 @ 0b00001 @ dest[2:0] @ o1[2:0] @ o2[2:0]
+	sub {dest: reg}, {o1: reg}, {o2: reg} -> 0b01 @ 0b00010 @ dest[2:0] @ o1[2:0] @ o2[2:0]
+	and {dest: reg}, {o1: reg}, {o2: reg} -> 0b01 @ 0b00011 @ dest[2:0] @ o1[2:0] @ o2[2:0]
+	or  {dest: reg}, {o1: reg}, {o2: reg} -> 0b01 @ 0b00100 @ dest[2:0] @ o1[2:0] @ o2[2:0]
+	not {dest: reg}, {src: reg} -> 0b01 @ 0b00101 @ dest[2:0] @ src[2:0] @ 0b000
+	inc {dest: reg}, {src: reg} -> 0b01 @ 0b00110 @ dest[2:0] @ src[2:0] @ 0b000
+	dec {dest: reg}, {src: reg} -> 0b01 @ 0b00111 @ dest[2:0] @ src[2:0] @ 0b000
+	mul {dest: reg}, {o1: reg}, {o2: reg} -> 0b01 @ 0b01000 @ dest[2:0] @ o1[2:0] @ o2[2:0]
+	movu {dest: reg}, #{value} -> 0b01 @ 0b1 @ 0b00 @ dest[2:0] @ value[7:0]
+	movl {dest: reg}, #{value} -> 0b01 @ 0b1 @ 0b01 @ dest[2:0] @ value[7:0]
+	
+	jmp {dest: reg} -> 0b10 @ 0b000001 @ 0b00000 @ dest[2:0]
+	jmpo #{offset} -> 0b10 @ 0b000010 @ 0b000 @ offset[4:0]
+	call {dest: reg} -> 0b10 @ 0b000011 @ 0b00000 @ dest[2:0]
+	ret -> 0b10 @ 0b000100 @ 0b00000000
+	bnz {comp: reg}, {dest: reg} -> 0b10 @ 0b000101 @0b00 @ comp[2:0] @ dest[2:0]
+	bnzo {comp: reg}, #{offset} -> 0b10 @ 0b000110 @ comp[2:0] @ offset[4:0]
+	bz {comp: reg}, {dest: reg} -> 0b10 @ 0b000111 @0b00 @ comp[2:0] @ dest[2:0]
+	bzo {comp: reg}, #{offset} -> 0b10 @ 0b001000 @ comp[2:0] @ offset[4:0]
+	
+	ldr {comp: reg}, {dest: reg} -> 0b11 @ 0b000001 @0b00 @ comp[2:0] @ dest[2:0]
+	str {comp: reg}, {dest: reg} -> 0b11 @ 0b000010 @0b00 @ comp[2:0] @ dest[2:0]
+}
+
+#addr 0x400
+
+main:
+	movl r1, #multiply3x4[7:0]
+	movu r1, #multiply3x4[15:8]
+	call r1
+	nop
+	hlt
+
+multiply3x4:
+	movl r1, #3
+	movl r2, #4
+	mul r3, r1, r2
+	ret

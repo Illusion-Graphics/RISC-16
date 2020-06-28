@@ -7,6 +7,9 @@ filesets:
   rtl:
     files:
       - src/RISC16.sv : {file_type : systemVerilogSource}
+      - src/Decode.sv : {file_type : systemVerilogSource}
+      - src/ALU.sv : {file_type : systemVerilogSource}
+      - src/Defines.svh : {file_type : systemVerilogSource, is_include_file: true}
 
   test:
     depend:
