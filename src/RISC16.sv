@@ -22,13 +22,14 @@ Decode decode_inst
 (
     .anInstruction(myInstruction),
     .anOutInstructionType(decodeInstructionType),
+    .anOutOperand(),
     .anOutOpALU(ALUOperand),
     .anOutA(decodeA),
     .anOutB(decodeB),
     .anOutC(decodeC),
     .anOutImmediateFlag(decodeImmediateFlag),
     .anOutImmediate(decodeImmediate),
-    .anInstructionError(mySystemFlags.InstructionError)
+    .anOutInstructionError(mySystemFlags.InstructionError)
 );
 
 // ALU
@@ -102,7 +103,6 @@ always_ff @(posedge aClock) begin
             myNextState <= EXECUTE;
         end
         EXECUTE: begin
-
             case (decodeInstructionType)
                 2'b00: begin
                     if (myInstruction[7:0] == 8'b00000001) begin

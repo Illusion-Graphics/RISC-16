@@ -31,7 +31,7 @@ public:
 		myCore->aReset = 0;
 		Tick();
 
-		while(!myCore->RISC16__DOT__haltState)
+		while(!myCore->RISC16__DOT__haltState && !myCore->RISC16__DOT__errorState)
 		{
 			if(myCore->anOutWrite)
 			{
@@ -45,6 +45,9 @@ public:
 			}
 			Tick();
 		}
+
+		if(myCore->RISC16__DOT__errorState)
+			printf("Panic state!\n");
 
 		return true;
 	}

@@ -1,8 +1,10 @@
+`include "Defines.svh"
 module Decode
 (
     input logic [15:0] anInstruction,
 
     output logic [1:0] anOutInstructionType,
+    output logic [7:0] anOutOperand,
 
     output logic [4:0] anOutOpALU,
     output logic [2:0] anOutA,
@@ -12,7 +14,7 @@ module Decode
     output logic signed anOutImmediateFlag,
     output logic [7:0] anOutImmediate,
 
-    output logic anInstructionError
+    output logic anOutInstructionError
 );
 
 assign anOutInstructionType = anInstruction[15:14];
@@ -20,16 +22,17 @@ assign anOutInstructionType = anInstruction[15:14];
 always_comb begin
     anOutImmediateFlag = 0;
 
-    case (anInstruction[15:14])
+    case (anOutInstructionType)
         // ---------------------------------
         // System operations
         2'b00: begin
-            case (anInstruction)
-                // NOP
-                16'h0000: begin end
+            anOutOperand = anInstruction[7:0];
 
-                // HLT
-                16'h0001: begin
+            case (anOutOperand)
+                `INS_NOP, `INS_HLT: begin end
+
+                default: begin
+                    anOutInstructionError = 1;
                 end
             endcase
         end
@@ -37,57 +40,69 @@ always_comb begin
         // ---------------------------------
         // ALU operations
         2'b01: begin
+            anOutImmediateFlag = anInstruction[13];
+
             // Not immediate mode
-            if (!anInstruction[13]) begin
+            if (!anOutImmediateFlag) begin
+                anOutOperand = {4'b0, anInstruction[12:9]};
                 anOutOpALU = anInstruction[13:9];
                 anOutA = anInstruction[8:6];
                 anOutB = anInstruction[5:3];
                 anOutC = anInstruction[2:0];
+
+                case (anOutOperand)
+                    `INS_MOV, `INS_ADD, `INS_SUB, `INS_AND, `INS_OR,
+                    `INS_NOT, `INS_DEC, `INS_INC, `INS_MUL: begin end
+
+                    default: begin
+                        anOutInstructionError = 1;
+                    end
+                endcase
             end
             // Immediate mode
             else begin
-                anOutImmediateFlag = 1;
+                anOutOperand = {6'b0, anInstruction[12:11]};
                 anOutOpALU = {anInstruction[13:11], 2'b00};
                 anOutA = anInstruction[10:8];
                 anOutImmediate = anInstruction[7:0];
+                
+
+                case (anOutOperand)
+                    `INS_MOVU, `INS_MOVL: begin end
+
+                    default: begin
+                        anOutInstructionError = 1;
+                    end
+                endcase
             end
         end
 
         // ---------------------------------
         // Flow operations
         2'b10: begin
-            case (anInstruction[13:8])
-                // JMP
-                6'b000001,
-                // CALL
-                6'b000011: begin
+            anOutOperand = {2'b0, anInstruction[13:8]};
+
+            case (anOutOperand)
+                `INS_JMP, `INS_CALL: begin
                     anOutA = anInstruction[2:0];
                 end
-                // JMPO
-                6'b000010: begin
+                `INS_JMPO: begin
                     anOutImmediate = {3'b0, anInstruction[4:0]};
                     anOutImmediateFlag = 1;
                 end
-                // BNZ
-                6'b000101,
-                // BZ
-                6'b000111: begin
+                `INS_BNZ, `INS_BZ: begin
                     anOutA = anInstruction[5:3];
                     anOutB = anInstruction[2:0];
                 end
-                // BNZO
-                6'b000110,
-                // BZO
-                6'b001000: begin
+                `INS_BNZO, `INS_BZO: begin
                     anOutA = anInstruction[7:5];
                     anOutImmediate = {{4{anInstruction[4]}},anInstruction[3:0]};
                     anOutImmediateFlag = 1;
                 end
-                // RET
-                6'b000100: begin end
+                `INS_RET: begin end
 
                 default: begin
-                    anInstructionError = 1;
+                    anOutInstructionError = 1;
                 end
             endcase
         end
@@ -95,25 +110,20 @@ always_comb begin
         // ---------------------------------
         // Memory operations
         2'b11: begin
-            case (anInstruction[13:8])
-                // LDR
-                6'b000001,
-                // STR
-                6'b000010: begin
+            anOutOperand = {2'b0, anInstruction[13:8]};
+
+            case (anOutOperand)
+               `INS_LDR, `INS_STR: begin
                     anOutA = anInstruction[5:3];
                     anOutB = anInstruction[2:0];
                 end
 
                 default: begin
-                    anInstructionError = 1;
+                    anOutInstructionError = 1;
                 end
             endcase
-        end
-
-        default: begin
-            anInstructionError = 1;
         end
     endcase
 end
 
-endmodule
+endmodule // Decode
