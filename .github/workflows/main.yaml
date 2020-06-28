@@ -10,26 +10,21 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Setup -pPython version
+    - name: Setup python version
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-
-    - name: Python version
-      run: python -c "import sys; print(sys.version)"
 
     - name: Install verilator
       run: sudo apt-get install verilator
 
     - name: Install fusesoc
       run: |
-        python -c "import sys; print(sys.version)"
         pip install fusesoc
         fusesoc init -y
         
     - name: Setup project
       run: |
-        cd Hardware
         fusesoc library add Illusion .
         fusesoc library add --sync-type git Verilator-Test https://github.com/Illusion-Graphics/Verilator-Test.git
   
