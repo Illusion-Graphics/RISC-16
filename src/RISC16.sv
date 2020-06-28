@@ -1,6 +1,11 @@
 `include "Defines.svh"
 
-module RISC16(
+module RISC16
+#(
+    parameter STACK_ADDR = 16'h0300,
+    parameter PROG_ADDR = 16'h0400
+)
+(
     input   bit             aClock,
     input   bit             aReset,
 
@@ -92,8 +97,8 @@ always_ff @(posedge aClock) begin
             for (int i = 0; i < $size(myRegisters); i ++) begin
                 myRegisters[i] <= 0;
             end
-            myRegisters[7] <= 16'h0400;
-            myRegisters[10] <= 16'h0200;
+            myRegisters[7] <= PROG_ADDR;
+            myRegisters[10] <= STACK_ADDR;
         end
         FETCHING: begin
             myNextState <= DECODE;
