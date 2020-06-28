@@ -9,19 +9,30 @@ public:
 	Simple() : Test("Simple RISC 16"), TestBench(99, "simple.vcd") {}
 
 	void Initialize() override {
+		// fibonacci:
 		myMemory[0x0400] = 0x4040;
 		myMemory[0x0401] = 0x6a01;
 		myMemory[0x0402] = 0x6c0a;
 		myMemory[0x0403] = 0x6e00;
 		myMemory[0x0404] = 0x6600;
-		myMemory[0x0405] = 0x42ca;
-		myMemory[0x0406] = 0x4050;
-		myMemory[0x0407] = 0x4098;
+
+		// loop:
+		myMemory[0x0405] = 0x6b0d;
+		myMemory[0x0406] = 0x6304;
+		myMemory[0x0407] = 0x8303;
 		myMemory[0x0408] = 0xc233;
 		myMemory[0x0409] = 0x4db0;
 		myMemory[0x040a] = 0x4f20;
 		myMemory[0x040b] = 0x8699;
+
+		// end:
 		myMemory[0x040c] = 0x0001;
+
+		// cal:
+		myMemory[0x040d] = 0x42ca;
+		myMemory[0x040e] = 0x4050;
+		myMemory[0x040f] = 0x4098;
+		myMemory[0x0410] = 0x8400;
 	}
 
 	bool Execute() override
