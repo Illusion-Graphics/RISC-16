@@ -1,6 +1,12 @@
 `ifndef __DEFINES_SVH
 `define __DEFINES_SVH
 
+// Instruction type
+`define     OP_SYS      2'b00
+`define     OP_ALU      2'b01
+`define     OP_FLO      2'b10
+`define     OP_MEM      2'b11
+
 // Instruction operands
 // - System operations
 `define     INS_NOP     8'b00000000

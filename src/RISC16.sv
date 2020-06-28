@@ -1,3 +1,5 @@
+`include "Defines.svh"
+
 module RISC16(
     input   bit             aClock,
     input   bit             aReset,
@@ -12,6 +14,7 @@ reg [15:0] myInstruction;
 
 // Decode unit
 wire [1:0] decodeInstructionType;
+wire [7:0] decodeOperand;
 wire [2:0] decodeA;
 wire [2:0] decodeB;
 wire [2:0] decodeC;
@@ -22,7 +25,7 @@ Decode decode_inst
 (
     .anInstruction(myInstruction),
     .anOutInstructionType(decodeInstructionType),
-    .anOutOperand(),
+    .anOutOperand(decodeOperand),
     .anOutOpALU(ALUOperand),
     .anOutA(decodeA),
     .anOutB(decodeB),
@@ -104,13 +107,12 @@ always_ff @(posedge aClock) begin
         end
         EXECUTE: begin
             case (decodeInstructionType)
-                2'b00: begin
-                    if (myInstruction[7:0] == 8'b00000001) begin
+                `OP_SYS: begin
+                    if (decodeOperand == `INS_HLT)
                         mySystemFlags.Halt = 1;
-                    end
                 end
 
-                2'b01: begin
+                `OP_ALU: begin
                     if (decodeImmediateFlag) begin
                         ALUA = myRegisters[{1'b0, decodeA}];
                         ALUB = {8'b0, decodeImmediate};
@@ -121,40 +123,71 @@ always_ff @(posedge aClock) begin
                     end
                 end
                 
-                2'b10: begin
+                `OP_FLO: begin
 
                 end
-                2'b11: begin
-                    if (myInstruction[13:8] == 6'b000001) begin
-                        anOutAddress <= myRegisters[{1'b0, decodeB}];
-                    end
-                    else if (myInstruction[13:8] == 6'b000010) begin
-                        anOutAddress <= myRegisters[{1'b0, decodeA}];
-                        anOutData <= myRegisters[{1'b0, decodeB}];
-                        anOutWrite <= 1;
-                    end
+
+                `OP_MEM: begin
+                    case (decodeOperand)
+                        `INS_LDR: begin
+                            anOutAddress <= myRegisters[{1'b0, decodeB}];
+                        end
+                        `INS_STR: begin
+                            anOutAddress <= myRegisters[{1'b0, decodeA}];
+                            anOutData <= myRegisters[{1'b0, decodeB}];
+                            anOutWrite <= 1;
+                        end
+                        default: begin end
+                    endcase
                 end
             endcase
             myNextState <= APPLY;
         end
         APPLY: begin
             case (decodeInstructionType)
-                2'b00: begin end
+                `OP_SYS: begin end
 
-                2'b01: begin
+                `OP_ALU: begin
                     myRegisters[{1'b0, decodeA}] <= ALUOutput;
                 end
                 
-                2'b10: begin
-                    if (myInstruction[13:8] == 6'b000110) begin
-                        if (myRegisters[{1'b0, decodeA}] != 0) begin
+                `OP_FLO: begin
+                    case (decodeOperand)
+                        `INS_JMP: begin
+                            myRegisters[7] = myRegisters[{1'b0, decodeA}];
+                        end
+                        `INS_JMPO: begin
                             myRegisters[7] = myRegisters[7] + {{8{decodeImmediate[7]}},decodeImmediate};
                         end
-                    end
-
+                        `INS_CALL: begin
+                            myRegisters[8] = myRegisters[7];
+                            myRegisters[7] = myRegisters[{1'b0, decodeA}];
+                        end
+                        `INS_RET: begin
+                            myRegisters[7] = myRegisters[8];
+                        end
+                        `INS_BNZ: begin
+                            if (myRegisters[{1'b0, decodeA}] != 0)
+                                myRegisters[7] = myRegisters[{1'b0, decodeB}];
+                        end
+                        `INS_BNZO: begin
+                            if (myRegisters[{1'b0, decodeA}] != 0)
+                                myRegisters[7] = myRegisters[7] + {{8{decodeImmediate[7]}},decodeImmediate};
+                        end
+                        `INS_BZ: begin
+                            if (myRegisters[{1'b0, decodeA}] == 0)
+                                myRegisters[7] = myRegisters[{1'b0, decodeB}];
+                        end
+                        `INS_BZO: begin
+                            if (myRegisters[{1'b0, decodeA}] == 0)
+                                myRegisters[7] = myRegisters[7] + {{8{decodeImmediate[7]}},decodeImmediate};
+                        end
+                        default: begin end
+                    endcase
                 end
-                2'b11: begin
-                    if (myInstruction[13:8] == 6'b000001) begin
+
+                `OP_MEM: begin
+                    if (decodeOperand == `INS_LDR) begin
                         myRegisters[{1'b0, decodeA}] <= aData;
                     end
                 end

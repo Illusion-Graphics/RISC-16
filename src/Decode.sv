@@ -25,7 +25,7 @@ always_comb begin
     case (anOutInstructionType)
         // ---------------------------------
         // System operations
-        2'b00: begin
+        `OP_SYS: begin
             anOutOperand = anInstruction[7:0];
 
             case (anOutOperand)
@@ -39,7 +39,7 @@ always_comb begin
         
         // ---------------------------------
         // ALU operations
-        2'b01: begin
+        `OP_ALU: begin
             anOutImmediateFlag = anInstruction[13];
 
             // Not immediate mode
@@ -79,7 +79,7 @@ always_comb begin
 
         // ---------------------------------
         // Flow operations
-        2'b10: begin
+        `OP_FLO: begin
             anOutOperand = {2'b0, anInstruction[13:8]};
 
             case (anOutOperand)
@@ -109,7 +109,7 @@ always_comb begin
 
         // ---------------------------------
         // Memory operations
-        2'b11: begin
+        `OP_MEM: begin
             anOutOperand = {2'b0, anInstruction[13:8]};
 
             case (anOutOperand)
