@@ -1,0 +1,29 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install verilator
+      run: sudo apt-get install verilator
+
+    - name: Install fusesoc
+      run: |
+        sudo pip install fusesoc
+        fusesoc init -y
+        
+    - name: Setup project
+      run: |
+        cd Hardware
+        fusesoc library add Illusion .
+        fusesoc library add --sync-type git Verilator-Test https://github.com/Illusion-Graphics/Verilator-Test.git
+  
+    - name: Simulate Top
+      run: |
+        fusesoc run --target=test Illusion:RISC16:CPU:1.0

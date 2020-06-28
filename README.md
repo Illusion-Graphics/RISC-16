@@ -16,6 +16,9 @@ It features the following:
 ### Hardware
 The project was built using [Fusesoc](https://github.com/olofk/fusesoc). For details on how to use Fusesoc, refer to the project's documentation.
 
+The project has a dependency on [Illusion verilator test](https://github.com/Illusion-Graphics/Verilator-Test), execute the following to synchornize it:  
+```fusesoc library add --sync-type git Verilator-Test https://github.com/Illusion-Graphics/Verilator-Test.git```
+
 The core is supplied with a Verilog testbench, to execute it simply run:  
 ```fusesoc run --target=test Illusion:RISC16:CPU:1.0```
 
