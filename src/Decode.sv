@@ -117,6 +117,9 @@ always_comb begin
                     anOutA = anInstruction[5:3];
                     anOutB = anInstruction[2:0];
                 end
+               `INS_PUSH, `INS_POP: begin
+                    anOutA = anInstruction[2:0];
+                end
 
                 default: begin
                     anOutInstructionError = 1;

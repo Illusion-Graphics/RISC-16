@@ -34,7 +34,9 @@
 `define     INS_BZO     8'b00001000
 // - Memory operations
 `define     INS_LDR     8'b00000001
-`define     INS_STR    8'b00000010
+`define     INS_STR     8'b00000010
+`define     INS_PUSH    8'b00000011
+`define     INS_POP     8'b00000100
 
 
 // ALU operands

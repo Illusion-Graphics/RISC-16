@@ -55,7 +55,8 @@ ALU alu_inst
 //  - r1-r7: General purpose registers
 //  - r8: Instruction pointer
 //  - r9: Return address pointer
-reg [15:0] myRegisters [0:9];
+//  - r10: Stack pointer
+reg [15:0] myRegisters [0:10];
 
 // Flags
 typedef struct packed {
@@ -92,6 +93,7 @@ always_ff @(posedge aClock) begin
                 myRegisters[i] <= 0;
             end
             myRegisters[7] <= 16'h0400;
+            myRegisters[10] <= 16'h0200;
         end
         FETCHING: begin
             myNextState <= DECODE;
@@ -136,6 +138,14 @@ always_ff @(posedge aClock) begin
                             anOutAddress <= myRegisters[{1'b0, decodeA}];
                             anOutData <= myRegisters[{1'b0, decodeB}];
                             anOutWrite <= 1;
+                        end
+                        `INS_PUSH: begin
+                            anOutAddress <= myRegisters[10];
+                            anOutData <= myRegisters[{1'b0, decodeA}];
+                            anOutWrite <= 1;
+                        end
+                        `INS_POP: begin
+                            anOutAddress <= myRegisters[10] - 1;
                         end
                         default: begin end
                     endcase
@@ -187,9 +197,19 @@ always_ff @(posedge aClock) begin
                 end
 
                 `OP_MEM: begin
-                    if (decodeOperand == `INS_LDR) begin
-                        myRegisters[{1'b0, decodeA}] <= aData;
-                    end
+                    case (decodeOperand)
+                        `INS_LDR: begin
+                            myRegisters[{1'b0, decodeA}] <= aData;
+                        end
+                        `INS_PUSH: begin
+                            myRegisters[10]++;
+                        end
+                        `INS_POP: begin
+                            myRegisters[{1'b0, decodeA}] <= aData;
+                            myRegisters[10]--;
+                        end
+                        default: begin end
+                    endcase
                 end
             endcase
 
