@@ -41,18 +41,3 @@
 	ldr {comp: reg}, {dest: reg} -> 0b11 @ 0b000001 @0b00 @ comp[2:0] @ dest[2:0]
 	str {comp: reg}, {dest: reg} -> 0b11 @ 0b000010 @0b00 @ comp[2:0] @ dest[2:0]
 }
-
-#addr 0x400
-
-main:
-	movl r1, #multiply3x4[7:0]
-	movu r1, #multiply3x4[15:8]
-	call r1
-	nop
-	hlt
-
-multiply3x4:
-	movl r1, #3
-	movl r2, #4
-	mul r3, r1, r2
-	ret
