@@ -23,7 +23,8 @@ jobs:
 
     - name: Install fusesoc
       run: |
-        sudo pip install fusesoc
+        python -c "import sys; print(sys.version)"
+        pip install fusesoc
         fusesoc init -y
         
     - name: Setup project
